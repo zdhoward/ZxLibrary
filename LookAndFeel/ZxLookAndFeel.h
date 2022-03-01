@@ -27,6 +27,7 @@ public:
     Font getTitleFont();
 
     void setTheme(Themes themeName);
+    Theme getTheme();
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
         float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override;

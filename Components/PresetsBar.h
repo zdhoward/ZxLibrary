@@ -88,7 +88,7 @@ public:
         settingsButton.setButtonText("SETTINGS");
         settingsButton.onClick = [&] {
             String settingsTitle = "Settings";
-            settingsPanel.showInDialogBox(settingsTitle, 200, 150, lnf.theme.bgGroup);// , Colours::grey);
+            settingsPanel.showInDialogBox(settingsTitle, 250, 250, lnf.theme.bgGroup);// , Colours::grey);
         };
     }
 

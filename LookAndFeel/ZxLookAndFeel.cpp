@@ -47,6 +47,11 @@ void ZxLookAndFeel::setTheme(Themes themeName)
     theme.setTheme(themeName);
 }
 
+Theme ZxLookAndFeel::getTheme()
+{
+    return theme;
+}
+
 //================================================================================================
 void ZxLookAndFeel::drawRotarySlider(Graphics& g,
     int x, int y, int width, int height, float sliderPos,
