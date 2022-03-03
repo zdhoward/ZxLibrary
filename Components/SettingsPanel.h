@@ -19,8 +19,8 @@ struct GeneralSettingsComponent : public Component
     Label oversamplingLabel;
     ComboBox oversamplingComboBox;
 
-    Label theme2Label;
-    ComboBox theme2ComboBox;
+    Label themeLabel;
+    ComboBox themeComboBox;
 
     TextButton resetFactoryPresetsButton;
 
@@ -56,14 +56,14 @@ struct GeneralSettingsComponent : public Component
         addAndMakeVisible(resetFactoryPresetsButton);
         resetFactoryPresetsButton.setButtonText("Reset Factory Presets");
 
-        addAndMakeVisible(theme2Label);
-        theme2Label.setText("Theme2: ", NotificationType::dontSendNotification);
-        theme2Label.setJustificationType(Justification::centredRight);
+        addAndMakeVisible(themeLabel);
+        themeLabel.setText("Theme: ", NotificationType::dontSendNotification);
+        themeLabel.setJustificationType(Justification::centredRight);
 
-        addAndMakeVisible(theme2ComboBox);
-        theme2ComboBox.addItemList(lnf.themeManager->getAllThemes(), 1);
-        theme2ComboBox.onChange = [&] {
-            int valIndex = theme2ComboBox.getSelectedItemIndex();
+        addAndMakeVisible(themeComboBox);
+        themeComboBox.addItemList(lnf.themeManager->getAllThemes(), 1);
+        themeComboBox.onChange = [&] {
+            int valIndex = themeComboBox.getSelectedItemIndex();
             lnf.themeManager->setThemeById(valIndex);
 
             p.repaint();
@@ -77,8 +77,8 @@ struct GeneralSettingsComponent : public Component
 
     void paint(Graphics& g) override 
     { 
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
-        g.fillAll(theme2.mainBackground);
+        Theme theme = lnf.themeManager->getCurrentTheme();
+        g.fillAll(theme.mainBackground);
     };
 
     void resized() override 
@@ -96,8 +96,8 @@ struct GeneralSettingsComponent : public Component
         bounds.removeFromTop(5);
 
         iBounds = bounds.removeFromTop(30);
-        theme2Label .setBounds(iBounds.removeFromLeft(iBounds.getWidth() / 2));
-        theme2ComboBox.setBounds(iBounds);
+        themeLabel .setBounds(iBounds.removeFromLeft(iBounds.getWidth() / 2));
+        themeComboBox.setBounds(iBounds);
 
         bounds.removeFromTop(5);
 
@@ -108,20 +108,20 @@ struct GeneralSettingsComponent : public Component
 
     void updateFields()
     {
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        Theme theme = lnf.themeManager->getCurrentTheme();
 
         int themeId = (int)apvts.state.getProperty("Theme");
         
-        theme2ComboBox.setSelectedItemIndex(lnf.themeManager->getCurrentThemeId(), true);
+        themeComboBox.setSelectedItemIndex(lnf.themeManager->getCurrentThemeId(), true);
         
         int oversamplingId = (int)apvts.state.getProperty("Oversampling");
         oversamplingComboBox.setSelectedId(oversamplingId);
 
-        oversamplingLabel.setColour(oversamplingLabel.textColourId, theme2.textMain);
-        oversamplingComboBox.setColour(oversamplingComboBox.textColourId, theme2.textMain);
+        oversamplingLabel.setColour(oversamplingLabel.textColourId, theme.textMain);
+        oversamplingComboBox.setColour(oversamplingComboBox.textColourId, theme.textMain);
 
-        theme2ComboBox.setColour(theme2ComboBox.textColourId, theme2.textMain);
-        theme2Label.setColour(theme2Label.textColourId, theme2.textMain);
+        themeComboBox.setColour(themeComboBox.textColourId, theme.textMain);
+        themeLabel.setColour(themeLabel.textColourId, theme.textMain);
     };
 };
 
@@ -137,38 +137,38 @@ struct AboutSettingsComponent : public Component
     { 
         setLookAndFeel(&lnf);
 
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        Theme theme = lnf.themeManager->getCurrentTheme();
 
         addAndMakeVisible(companyName);
         companyName.setText("ZxTools", NotificationType::dontSendNotification);
-        companyName.setColour(companyName.textColourId, theme2.textMain);
+        companyName.setColour(companyName.textColourId, theme.textMain);
 
         addAndMakeVisible(companyEmail);
         companyEmail.setText("@gmail.com", NotificationType::dontSendNotification);
-        companyEmail.setColour(companyEmail.textColourId, theme2.textMain);
+        companyEmail.setColour(companyEmail.textColourId, theme.textMain);
 
         addAndMakeVisible(companyGithub);
         companyGithub.setText("https://github.com/zdhoward", NotificationType::dontSendNotification);
-        companyGithub.setColour(companyGithub.textColourId, theme2.textMain);
+        companyGithub.setColour(companyGithub.textColourId, theme.textMain);
 
         addAndMakeVisible(companyWebsite);
         companyWebsite.setText("https://zdhoward.github.io/ZxTools/", NotificationType::dontSendNotification);
-        companyWebsite.setColour(companyWebsite.textColourId, theme2.textMain);
+        companyWebsite.setColour(companyWebsite.textColourId, theme.textMain);
 
         addAndMakeVisible(bio);
         bio.setMultiLine(true, true);
         bio.setEnabled(false);
         bio.setColour(bio.outlineColourId, Colour(0x00));
-        bio.setColour(bio.backgroundColourId, theme2.mainBackground);
-        bio.setColour(bio.textColourId, theme2.textMain);
+        bio.setColour(bio.backgroundColourId, theme.mainBackground);
+        bio.setColour(bio.textColourId, theme.textMain);
         bio.setText("My name is Zach and I like to make VSTs", NotificationType::dontSendNotification);
     };
     ~AboutSettingsComponent() { };
 
     void paint(Graphics& g) override 
     { 
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
-        g.fillAll(theme2.mainBackground);
+        Theme theme = lnf.themeManager->getCurrentTheme();
+        g.fillAll(theme.mainBackground);
     };
 
     void resized() override 
@@ -260,11 +260,11 @@ public:
 
     void SettingsPanel::paint(Graphics& g) override
     {
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
-        g.setColour(theme2.groupBackground);
+        Theme theme = lnf.themeManager->getCurrentTheme();
+        g.setColour(theme.groupBackground);
         g.fillAll();
 
-        g.setColour(theme2.groupBackground.brighter());
+        g.setColour(theme.groupBackground.brighter());
         g.fillRect(0, getButtonSize() + 4, getWidth(), 1);
 
         //g.setColour(Colours::black);

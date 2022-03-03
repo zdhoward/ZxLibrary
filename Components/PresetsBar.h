@@ -42,7 +42,7 @@ public:
         // initialise any special settings that your component needs.
         setLookAndFeel(&lnf);
 
-        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        Theme theme = lnf.themeManager->getCurrentTheme();
 
         addAndMakeVisible(savePresetButton);
         savePresetButton.setButtonText("Save");
@@ -90,7 +90,7 @@ public:
         settingsButton.setButtonText("SETTINGS");
         settingsButton.onClick = [&] {
             String settingsTitle = "Settings";
-            settingsPanel.showInDialogBox(settingsTitle, 250, 165, theme2.groupBackground);// , Colours::grey);
+            settingsPanel.showInDialogBox(settingsTitle, 250, 165, theme.groupBackground);// , Colours::grey);
         };
     }
 

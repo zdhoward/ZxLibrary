@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 
-struct Theme2 {
+struct Theme {
     int themeId = 0;
     String themeName = "Default";
 
@@ -58,7 +58,7 @@ public:
 
     ~ThemeManager() {};
 
-    Theme2 getCurrentTheme()
+    Theme getCurrentTheme()
     {
         return currentTheme;
     };
@@ -91,7 +91,7 @@ public:
 private:
     AudioProcessorValueTreeState& apvts;
 
-    Theme2 currentTheme;
+    Theme currentTheme;
 
     StringArray themes = {
         "Default",
