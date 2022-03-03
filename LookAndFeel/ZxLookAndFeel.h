@@ -11,23 +11,21 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ColourPalette.h"
+#include "../Services/ThemeManager.h"
 
 class ZxLookAndFeel : public LookAndFeel_V4
 {
 public:
     ZxLookAndFeel(AudioProcessorValueTreeState& apvts);
+    ~ZxLookAndFeel() { themeManager = nullptr; };
 
-    Theme theme;
+    ScopedPointer<ThemeManager> themeManager;
 
     static Colour getBGColour();
     static Colour getPluginNameColour();
     static Colour getTitleColour();
 
     Font getTitleFont();
-
-    void setTheme(Themes themeName);
-    Theme getTheme();
 
     void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
         float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override;
@@ -50,6 +48,8 @@ public:
     void getIdealPopupMenuItemSize(const String& text, bool isSeparator, int standardMenuItemHeight, int& idealWidth, int& idealHeight) override;
 
     void drawPopupMenuBackground(Graphics& g, int width, int height) override;
+
+    void drawDrawableButton(Graphics& g, DrawableButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     Typeface::Ptr fontBlackgrounds;
     Typeface::Ptr fontUbuntuRegular;

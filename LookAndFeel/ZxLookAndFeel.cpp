@@ -15,9 +15,10 @@
 //==============================================================================
 const float fontSize = 15.f;
 
-ZxLookAndFeel::ZxLookAndFeel(AudioProcessorValueTreeState& apvts) :
-    theme(apvts)
+ZxLookAndFeel::ZxLookAndFeel(AudioProcessorValueTreeState& apvts)
 {
+    themeManager = new ThemeManager(apvts);
+
     setColour(Slider::textBoxOutlineColourId, Colour(0x00));
 
     fontBlackgrounds = Typeface::createSystemTypefaceFor(BinaryData::BlackgroundsRegular_ttf, BinaryData::BlackgroundsRegular_ttfSize);
@@ -42,16 +43,6 @@ Font ZxLookAndFeel::getTitleFont()
     return fontTitle;
 }
 
-void ZxLookAndFeel::setTheme(Themes themeName)
-{
-    theme.setTheme(themeName);
-}
-
-Theme ZxLookAndFeel::getTheme()
-{
-    return theme;
-}
-
 //================================================================================================
 void ZxLookAndFeel::drawRotarySlider(Graphics& g,
     int x, int y, int width, int height, float sliderPos,
@@ -70,20 +61,22 @@ void ZxLookAndFeel::drawRotarySlider(Graphics& g,
         + sliderPos
         * (rotaryEndAngle - rotaryStartAngle);
 
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
     // Draw Title
     String title = slider.getName();
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.setFont(fontBold);
     g.drawFittedText(title, 0, 0, width, fontSize*2, Justification::centredBottom, 1, 1.f);
 
     // Draw BG Path
-    g.setColour(theme.bgComponent);
+    g.setColour(theme2.compBackground);
     Path filledArc;
     filledArc.addPieSegment(rx, ry, rw + 1, rw + 1, rotaryStartAngle, rotaryEndAngle, 0.6);
     g.fillPath(filledArc);
 
     // Draw Active Path
-    g.setColour(theme.compFace);
+    g.setColour(theme2.compFace);
     Path filledArc1;
     filledArc1.addPieSegment(rx, ry, rw + 1, rw + 1, rotaryStartAngle, angle, 0.6);
     g.fillPath(filledArc1);
@@ -94,12 +87,12 @@ void ZxLookAndFeel::drawRotarySlider(Graphics& g,
     const float pointerThickness = radius * 0.2f;
     p.addRectangle(-pointerThickness * 0.5f, -radius - 1, pointerThickness, pointerLength);
     p.applyTransform(AffineTransform::rotation(angle).translated(centreX, centreY));
-    g.setColour(theme.compHighlight);
+    g.setColour(theme2.compHighlight);
     g.fillPath(p);
 
     // Draw Value
     auto textBounds = slider.getLocalBounds().removeFromBottom(fontSize * 2);
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.setFont(fontRegular);
     auto val = slider.getValue();
     if (slider.getTextValueSuffix() == "%")
@@ -113,18 +106,20 @@ void ZxLookAndFeel::drawRotarySlider(Graphics& g,
 //================================================================================================
 void ZxLookAndFeel::drawGroupComponentOutline(Graphics& g, int w, int h, const String& text, const Justification& justification, GroupComponent& group)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
     auto margins = 5.f;
 
     // Draw BG
-    g.setColour(theme.bgGroup);
-    g.setGradientFill(ColourGradient(theme.bgGroup, 0, 0, theme.bgGroup.darker(), 0, group.getHeight(), false));
+    g.setColour(theme2.groupBackground);
+    g.setGradientFill(ColourGradient(theme2.groupBackground, 0, 0, theme2.groupBackground.darker(), 0, group.getHeight(), false));
     g.fillRoundedRectangle(0 + margins, 0 + margins, w - margins * 2, h - margins * 2, 10.f);
 
-    g.setGradientFill(ColourGradient(theme.bgGroup, 0, group.getHeight(), theme.bgGroup.darker(), 0, 0, false));
+    g.setGradientFill(ColourGradient(theme2.groupBackground, 0, group.getHeight(), theme2.groupBackground.darker(), 0, 0, false));
     g.drawRoundedRectangle(0 + margins, 0 + margins, w - margins * 2, h - margins * 2, 10.f, 1.f);
 
     // Draw Text
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.setFont(fontBold);
     g.drawFittedText(group.getName(), 0 + margins , 0 + margins * 2, w - margins * 2, h - margins * 2, Justification::centredTop, 1, 1.f);
 }
@@ -133,6 +128,7 @@ void ZxLookAndFeel::drawGroupComponentOutline(Graphics& g, int w, int h, const S
 void ZxLookAndFeel::drawLinearSlider(Graphics& g, int x, int y, int width, int height,
     float sliderPos, float minSliderPos, float maxSliderPos, const Slider::SliderStyle style, Slider& slider)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
     const float barWidth = 20.f;
 
     const float fwidth = width;
@@ -146,16 +142,16 @@ void ZxLookAndFeel::drawLinearSlider(Graphics& g, int x, int y, int width, int h
 
     // Draw Title
     String title = slider.getName();
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.setFont(fontBold);
     g.drawFittedText(title, 0, 0, width, fontSize * 2, Justification::centredBottom, 1, 1.f);
 
     // Draw BG Path
-    g.setColour(theme.bgComponent);
+    g.setColour(theme2.compBackground);
     g.fillRect(centreX, topDisplacement, barWidth, fheight - botDisplacement - topDisplacement);
 
     // Draw Active Path
-    g.setColour(theme.compFace);
+    g.setColour(theme2.compFace);
     Path p;
     const float pointerLength = fheight - botDisplacement/2 - topDisplacement - ((fheight - botDisplacement/2 - topDisplacement) * (sliderPos / maxSliderPos));
     const float pointerThickness = barWidth;
@@ -163,11 +159,11 @@ void ZxLookAndFeel::drawLinearSlider(Graphics& g, int x, int y, int width, int h
     g.fillPath(p);
 
     // Draw Thumb
-    g.setColour(theme.compHighlight);
+    g.setColour(theme2.compHighlight);
     g.fillRect(centreX-1.f, fheight - pointerLength - botDisplacement - 2.f, pointerThickness+2.f, 4.f);
 
     // Draw Value
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.setFont(fontRegular);
     auto val = slider.getValue();
     if (slider.getTextValueSuffix() == "%")
@@ -181,6 +177,8 @@ void ZxLookAndFeel::drawLinearSlider(Graphics& g, int x, int y, int width, int h
 //================================================================================================
 void ZxLookAndFeel::drawToggleButton(Graphics& g, ToggleButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
     const float margins = 5.f;
 
     const float height = fontSize * 2;
@@ -190,22 +188,24 @@ void ZxLookAndFeel::drawToggleButton(Graphics& g, ToggleButton& button, bool sho
     const float y = button.getHeight() / 2 - height / 2;
 
     bool state = button.getToggleState();
-    auto toggledOnBGColour = theme.compFace;
-    auto toggledOffBGColour = theme.compHighlight;
+    auto toggledOnBGColour = theme2.compFace;
+    auto toggledOffBGColour = theme2.compHighlight;
 
-    auto toggledOnTextColour = theme.mainText;
-    auto toggledOffTextColour = theme.invertedText;
+    auto toggledOnTextColour = theme2.compHighlight;
+    auto toggledOffTextColour = theme2.compFace;
 
-    g.setColour(shouldDrawButtonAsDown ? Colours::darkgrey : state ? toggledOnBGColour : toggledOffBGColour);
+    g.setColour(shouldDrawButtonAsDown ? theme2.buttonPressed : state ? theme2.buttonToggledBackground : theme2.buttonBackground);
     g.fillRoundedRectangle(x, y, width, height, height / 2.f);
 
-    g.setColour(state ? toggledOnTextColour : toggledOffTextColour);
+    g.setColour(state ? theme2.buttonToggledText : theme2.buttonText);
     g.setFont(fontBold);
     g.drawFittedText(button.getButtonText(), x, y, width, height, Justification::centred, 1);
 }
 
 void ZxLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
     const float margins = 5.f;
 
     const float width = button.getWidth() - margins * 2;
@@ -214,10 +214,10 @@ void ZxLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colo
     const float x = 0.f + margins;
     const float y = button.getHeight()/2 - height/2;
 
-    g.setColour(shouldDrawButtonAsDown? Colours::darkgrey : theme.compFace);
+    g.setColour(shouldDrawButtonAsDown? theme2.buttonPressed : theme2.buttonBackground);
     g.fillRoundedRectangle(x, y, width, height, height / 2.f);
 
-    g.setColour(theme.mainText);
+    g.setColour(theme2.buttonText);
     g.setFont(fontBold);
     g.drawFittedText(button.getButtonText(), x, y, width, height, Justification::centred, 1);
 }
@@ -225,17 +225,18 @@ void ZxLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colo
 //================================================================================================
 void ZxLookAndFeel::drawComboBox(Graphics& g, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& comboBox)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
 
     const float fwidth = width;
     const float fheight = height;
 
     const float margins = 0.f;
 
-    g.setColour(theme.bgGroup);
+    g.setColour(theme2.groupBackground);
     Rectangle<int> r = Rectangle<int>(0.f + margins, fheight / 2 - fontSize, fwidth - margins * 2, fontSize * 2.f);
     g.fillRect(r);
 
-    g.setColour(theme.compFace);
+    g.setColour(theme2.compFace);
     Rectangle<int> arrowBounds = r.removeFromRight(r.getHeight());
     arrowBounds.removeFromTop(10);
     arrowBounds.removeFromRight(10);
@@ -252,18 +253,20 @@ void ZxLookAndFeel::drawComboBox(Graphics& g, int width, int height, bool isButt
 void ZxLookAndFeel::drawPopupMenuItem(Graphics& g, const Rectangle< int >& area, bool isSeparator, bool isActive, bool isHighlighted, bool isTicked, bool hasSubMenu, 
     const String& text, const String& shortcutKeyText, const Drawable* icon, const Colour* textColour)
 {
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
     const float margins = 5.f;
     auto newArea = Rectangle<int>(area.getPosition().getX() + margins, area.getPosition().getY(), area.getWidth() - margins * 2, area.getHeight());
 
-    g.setColour(theme.compFace);
+    g.setColour(theme2.comboBoxActive);
     if (isTicked)
         g.fillRect(area);
 
-    g.setColour(theme.compHighlight);
+    g.setColour(theme2.comboBoxHighlighted);
     if (isHighlighted)
         g.fillRect(area);
 
-    g.setColour(theme.mainText);
+    g.setColour(theme2.textMain);
     g.drawFittedText(text, newArea, Justification::centredLeft, 1);
 }
 
@@ -274,6 +277,29 @@ void ZxLookAndFeel::getIdealPopupMenuItemSize(const String& text, bool isSeparat
 
 void ZxLookAndFeel::drawPopupMenuBackground(Graphics& g, int width, int height)
 {
-    g.setColour(theme.bgGroup);
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
+    g.setColour(theme2.groupBackground);
     g.fillAll();
+}
+
+void ZxLookAndFeel::drawDrawableButton(Graphics& g, DrawableButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    Theme2 theme2 = themeManager->getCurrentTheme();
+
+    g.setColour(theme2.groupBackground);
+
+    if (shouldDrawButtonAsHighlighted)
+        g.setColour(theme2.groupBackground.brighter());
+
+    if (shouldDrawButtonAsDown)
+        g.setColour(theme2.groupBackground.darker());
+
+    g.fillAll();
+
+    g.setColour(theme2.groupBackground.darker());
+    g.fillRect(button.getWidth() - 1, 0, 1, button.getHeight());
+
+    g.setColour(theme2.textMain);
+    g.drawFittedText(button.getButtonText(), 0, 0, button.getWidth(), button.getHeight(), Justification::centredBottom, 1);
 }

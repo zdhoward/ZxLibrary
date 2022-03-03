@@ -19,8 +19,6 @@
 class PresetsBar  : public juce::Component
 {
 public:
-    Theme& theme;
-
     TextButton savePresetButton;
     TextButton deletePresetButton;
 
@@ -32,15 +30,19 @@ public:
 
     SettingsPanel settingsPanel;
 
-    PresetsBar(PresetManager& pm, ZxLookAndFeel& lnf, AudioProcessorEditor& p, AudioProcessorValueTreeState& apvts) :
-        theme(lnf.theme),
+    ZxLookAndFeel& lnf;
+
+    PresetsBar(PresetManager& pm, ZxLookAndFeel& l, AudioProcessorEditor& p, AudioProcessorValueTreeState& apvts) :
         prevPresetButton("prevPresetButton", 0.5f, Colours::white),
         nextPresetButton("nextPresetButton", 0.f, Colours::white),
-        settingsPanel(lnf, p, apvts)
+        settingsPanel(l, p, apvts),
+        lnf(l)
     {
         // In your constructor, you should add any child components, and
         // initialise any special settings that your component needs.
         setLookAndFeel(&lnf);
+
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
 
         addAndMakeVisible(savePresetButton);
         savePresetButton.setButtonText("Save");
@@ -88,7 +90,7 @@ public:
         settingsButton.setButtonText("SETTINGS");
         settingsButton.onClick = [&] {
             String settingsTitle = "Settings";
-            settingsPanel.showInDialogBox(settingsTitle, 250, 250, lnf.theme.bgGroup);// , Colours::grey);
+            settingsPanel.showInDialogBox(settingsTitle, 250, 165, theme2.groupBackground);// , Colours::grey);
         };
     }
 
@@ -104,7 +106,7 @@ public:
            You should replace everything in this method with your own
            drawing code..
         */
-        g.setColour(theme.bgGroup);
+        g.setColour(lnf.themeManager->getCurrentTheme().groupBackground);
         g.fillAll();
     }
 

@@ -88,7 +88,7 @@ struct Theme
             // https://lospec.com/palette-list/inkpink
         //========================================================
             bgMain = Colour(0xff260d34);
-            bgGroup = bgMain.darker();//Colour(0xff272744).darker();
+            bgGroup = bgMain.darker();
             bgComponent = Colour(0xff452459);
 
             compFace = Colour(0xff87286a);

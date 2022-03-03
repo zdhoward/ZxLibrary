@@ -19,8 +19,10 @@ struct GeneralSettingsComponent : public Component
     Label oversamplingLabel;
     ComboBox oversamplingComboBox;
 
-    Label themeLabel;
-    ComboBox themeComboBox;
+    Label theme2Label;
+    ComboBox theme2ComboBox;
+
+    TextButton resetFactoryPresetsButton;
 
     AudioProcessorValueTreeState& apvts;
     AudioProcessorEditor& ape;
@@ -50,44 +52,24 @@ struct GeneralSettingsComponent : public Component
             apvts.state.setProperty("Oversampling", oversamplingComboBox.getSelectedId(), nullptr);
             updateFields();
         };
-        
 
-        addAndMakeVisible(themeLabel);
-        themeLabel.setText("Theme: ", NotificationType::dontSendNotification);
-        themeLabel.setJustificationType(Justification::centredRight);
+        addAndMakeVisible(resetFactoryPresetsButton);
+        resetFactoryPresetsButton.setButtonText("Reset Factory Presets");
 
-        addAndMakeVisible(themeComboBox);
-        items = {};
-        for (int i = static_cast<Themes>(0); i != Themes::END; i++)
-        {
-            auto item = static_cast<Themes>(i);
-            if (item != END)
-                items.add(GetThemes().at(item));
-        }
-        themeComboBox.addItemList(items, 1);
-        themeComboBox.onChange = [&] {
-            int valIndex = themeComboBox.getSelectedId() - 1;
-            Themes theme = (Themes)valIndex;
+        addAndMakeVisible(theme2Label);
+        theme2Label.setText("Theme2: ", NotificationType::dontSendNotification);
+        theme2Label.setJustificationType(Justification::centredRight);
 
-            lnf.setTheme(theme);
+        addAndMakeVisible(theme2ComboBox);
+        theme2ComboBox.addItemList(lnf.themeManager->getAllThemes(), 1);
+        theme2ComboBox.onChange = [&] {
+            int valIndex = theme2ComboBox.getSelectedItemIndex();
+            lnf.themeManager->setThemeById(valIndex);
+
             p.repaint();
             repaint();
             updateFields();
         };
-        //int themeId = (int)apvts.state.getProperty("Theme");
-        //themeComboBox.setText(GetThemes().at((Themes)themeId), true);
-
-        //themeComboBox.setText(GetThemes().at(lnf.theme.getTheme()), true);
-
-        //auto th = lnf.theme.getTheme();
-        //int thProp = apvts.state.getProperty("Theme");
-        //auto thName = GetThemes().at((Themes)thProp);
-        //DBG("Theme Name: " << thName);
-        
-         
-        //
-        //themeComboBox.setColour(themeComboBox.backgroundColourId, lnf.theme.bgGroup);
-        //themeComboBox.setColour(themeComboBox.outlineColourId, Colour(0x00));
 
         updateFields();
     };
@@ -95,7 +77,8 @@ struct GeneralSettingsComponent : public Component
 
     void paint(Graphics& g) override 
     { 
-        g.fillAll(lnf.theme.bgMain); 
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        g.fillAll(theme2.mainBackground);
     };
 
     void resized() override 
@@ -113,23 +96,32 @@ struct GeneralSettingsComponent : public Component
         bounds.removeFromTop(5);
 
         iBounds = bounds.removeFromTop(30);
-        themeLabel .setBounds(iBounds.removeFromLeft(iBounds.getWidth() / 2));
-        themeComboBox.setBounds(iBounds);
+        theme2Label .setBounds(iBounds.removeFromLeft(iBounds.getWidth() / 2));
+        theme2ComboBox.setBounds(iBounds);
+
+        bounds.removeFromTop(5);
+
+        iBounds = bounds.removeFromTop(30);
+        resetFactoryPresetsButton.setBounds(iBounds);
+
     };
 
     void updateFields()
     {
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+
         int themeId = (int)apvts.state.getProperty("Theme");
-        themeComboBox.setText(GetThemes().at((Themes)themeId), true);
+        
+        theme2ComboBox.setSelectedItemIndex(lnf.themeManager->getCurrentThemeId(), true);
         
         int oversamplingId = (int)apvts.state.getProperty("Oversampling");
         oversamplingComboBox.setSelectedId(oversamplingId);
 
-        oversamplingLabel.setColour(oversamplingLabel.textColourId, lnf.theme.mainText);
-        themeLabel.setColour(themeLabel.textColourId, lnf.theme.mainText);
+        oversamplingLabel.setColour(oversamplingLabel.textColourId, theme2.textMain);
+        oversamplingComboBox.setColour(oversamplingComboBox.textColourId, theme2.textMain);
 
-        oversamplingComboBox.setColour(themeComboBox.textColourId, lnf.theme.mainText);
-        themeComboBox.setColour(themeComboBox.textColourId, lnf.theme.mainText);
+        theme2ComboBox.setColour(theme2ComboBox.textColourId, theme2.textMain);
+        theme2Label.setColour(theme2Label.textColourId, theme2.textMain);
     };
 };
 
@@ -145,35 +137,38 @@ struct AboutSettingsComponent : public Component
     { 
         setLookAndFeel(&lnf);
 
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+
         addAndMakeVisible(companyName);
         companyName.setText("ZxTools", NotificationType::dontSendNotification);
-        companyName.setColour(companyName.textColourId, lnf.theme.mainText);
+        companyName.setColour(companyName.textColourId, theme2.textMain);
 
         addAndMakeVisible(companyEmail);
         companyEmail.setText("@gmail.com", NotificationType::dontSendNotification);
-        companyEmail.setColour(companyEmail.textColourId, lnf.theme.mainText);
+        companyEmail.setColour(companyEmail.textColourId, theme2.textMain);
 
         addAndMakeVisible(companyGithub);
         companyGithub.setText("https://github.com/zdhoward", NotificationType::dontSendNotification);
-        companyGithub.setColour(companyGithub.textColourId, lnf.theme.mainText);
+        companyGithub.setColour(companyGithub.textColourId, theme2.textMain);
 
         addAndMakeVisible(companyWebsite);
         companyWebsite.setText("https://zdhoward.github.io/ZxTools/", NotificationType::dontSendNotification);
-        companyWebsite.setColour(companyWebsite.textColourId, lnf.theme.mainText);
+        companyWebsite.setColour(companyWebsite.textColourId, theme2.textMain);
 
         addAndMakeVisible(bio);
         bio.setMultiLine(true, true);
         bio.setEnabled(false);
         bio.setColour(bio.outlineColourId, Colour(0x00));
-        bio.setColour(bio.backgroundColourId, lnf.theme.bgMain);
-        bio.setColour(bio.textColourId, lnf.theme.mainText);
+        bio.setColour(bio.backgroundColourId, theme2.mainBackground);
+        bio.setColour(bio.textColourId, theme2.textMain);
         bio.setText("My name is Zach and I like to make VSTs", NotificationType::dontSendNotification);
     };
     ~AboutSettingsComponent() { };
 
     void paint(Graphics& g) override 
     { 
-        g.fillAll(lnf.theme.bgMain);
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        g.fillAll(theme2.mainBackground);
     };
 
     void resized() override 
@@ -200,29 +195,6 @@ struct AboutSettingsComponent : public Component
     };
 };
 
-//struct SplashSettingsComponent : public Component
-//{
-//    ZxLookAndFeel& lnf;
-//
-//    SplashSettingsComponent(ZxLookAndFeel& l, AudioProcessorEditor& p) :
-//        lnf(l)
-//    {
-//        setLookAndFeel(&lnf);
-//    };
-//    ~SplashSettingsComponent() {};
-//
-//    void paint(Graphics& g) override
-//    {
-//        g.fillAll(Colours::black);//lnf.theme.bgMain);
-//    };
-//
-//    void resized() override
-//    {
-//
-//    }
-//};
-
-
 //==============================================================================
 /*
 */
@@ -243,6 +215,9 @@ public:
         ape(p),
         apvts(a)
     {
+        //generalComp = new GeneralSettingsComponent(lnf, ape, apvts);
+        //aboutComp = new AboutSettingsComponent(lnf, ape);
+
         setLookAndFeel(&lnf);
         // In your constructor, you should add any child components, and
         // initialise any special settings that your component needs.
@@ -253,38 +228,47 @@ public:
         setButtonSize(50);
 
         setCurrentPage("General");
-        //setCurrentPage("Splash");
-
-        //setSize(250, 250);
     }
 
     ~SettingsPanel() override
     {
+        //generalComp = nullptr;
+        //aboutComp = nullptr;
+        //delete generalComp;
+        //delete aboutComp;
     }
 
     Component* SettingsPanel::createComponentForPage(const String& pageName) override
     {
         if (pageName == "General")
         {
-            //setSize(250, 250);
+            setSize(250, 165);
             generalComp = new GeneralSettingsComponent(lnf, ape, apvts);
             generalComp->updateFields();
             return generalComp;
-            //return &general;
         }
         else if (pageName == "About")
         {
-            //setSize(250, 300);
+            setSize(250, 200);
             aboutComp = new AboutSettingsComponent(lnf, ape);
             return aboutComp;
         }
-        //else if (pageName == "Splash")
-        //{
-        //    return new SplashSettingsComponent(lnf, ape);
-        //}
         else {
             return new Component();
         }
+    }
+
+    void SettingsPanel::paint(Graphics& g) override
+    {
+        Theme2 theme2 = lnf.themeManager->getCurrentTheme();
+        g.setColour(theme2.groupBackground);
+        g.fillAll();
+
+        g.setColour(theme2.groupBackground.brighter());
+        g.fillRect(0, getButtonSize() + 4, getWidth(), 1);
+
+        //g.setColour(Colours::black);
+        //g.fillRect(0, 0, getWidth(), getHeight());
     }
 
 private:
