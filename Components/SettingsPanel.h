@@ -232,10 +232,6 @@ public:
 
     ~SettingsPanel() override
     {
-        //generalComp = nullptr;
-        //aboutComp = nullptr;
-        //delete generalComp;
-        //delete aboutComp;
     }
 
     Component* SettingsPanel::createComponentForPage(const String& pageName) override
@@ -254,7 +250,8 @@ public:
             return aboutComp;
         }
         else {
-            return new Component();
+            //return new Component();
+            return nullptr;
         }
     }
 
@@ -266,9 +263,6 @@ public:
 
         g.setColour(theme.groupBackground.brighter());
         g.fillRect(0, getButtonSize() + 4, getWidth(), 1);
-
-        //g.setColour(Colours::black);
-        //g.fillRect(0, 0, getWidth(), getHeight());
     }
 
 private:
