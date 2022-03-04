@@ -24,6 +24,8 @@ struct GeneralSettingsComponent : public Component
 
     TextButton resetFactoryPresetsButton;
 
+    Label reqRestartLabel;
+
     AudioProcessorValueTreeState& apvts;
     AudioProcessorEditor& ape;
 
@@ -35,8 +37,13 @@ struct GeneralSettingsComponent : public Component
         ape(p)
     { 
         setLookAndFeel(&lnf);
+
+        addAndMakeVisible(reqRestartLabel);
+        reqRestartLabel.setText("* requires a save and restart to take effect", NotificationType::dontSendNotification);
+        reqRestartLabel.setColour(reqRestartLabel.textColourId, lnf.themeManager->getCurrentTheme().textHighlight);
+
         addAndMakeVisible(oversamplingLabel);
-        oversamplingLabel.setText("Oversampling: ", NotificationType::dontSendNotification);
+        oversamplingLabel.setText("*Oversampling: ", NotificationType::dontSendNotification);
         oversamplingLabel.setJustificationType(Justification::centredRight);
 
         addAndMakeVisible(oversamplingComboBox);
@@ -89,7 +96,10 @@ struct GeneralSettingsComponent : public Component
         bounds.removeFromBottom(5);
         bounds.removeFromLeft(5);
 
-        auto iBounds = bounds.removeFromTop(30);
+        auto iBounds = bounds.removeFromTop(20);
+        reqRestartLabel.setBounds(iBounds);
+
+        iBounds = bounds.removeFromTop(30);
         oversamplingLabel.setBounds(iBounds.removeFromLeft(iBounds.getWidth() / 2));
         oversamplingComboBox.setBounds(iBounds);
 
@@ -103,7 +113,6 @@ struct GeneralSettingsComponent : public Component
 
         iBounds = bounds.removeFromTop(30);
         resetFactoryPresetsButton.setBounds(iBounds);
-
     };
 
     void updateFields()
@@ -114,7 +123,7 @@ struct GeneralSettingsComponent : public Component
         
         themeComboBox.setSelectedItemIndex(lnf.themeManager->getCurrentThemeId(), true);
         
-        int oversamplingId = (int)apvts.state.getProperty("Oversampling", 1);
+        int oversamplingId = (int)apvts.state.getProperty("Oversampling", 0);
         oversamplingComboBox.setSelectedId(oversamplingId);
 
         oversamplingLabel.setColour(oversamplingLabel.textColourId, theme.textMain);
@@ -238,7 +247,7 @@ public:
     {
         if (pageName == "General")
         {
-            setSize(250, 165);
+            setSize(250, 185);
             generalComp = new GeneralSettingsComponent(lnf, ape, apvts);
             generalComp->updateFields();
             return generalComp;

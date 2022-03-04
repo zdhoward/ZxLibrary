@@ -90,7 +90,7 @@ public:
         settingsButton.setButtonText("SETTINGS");
         settingsButton.onClick = [&] {
             String settingsTitle = "Settings";
-            settingsPanel.showInDialogBox(settingsTitle, 250, 165, theme.groupBackground);// , Colours::grey);
+            settingsPanel.showInDialogBox(settingsTitle, 250, 185, theme.groupBackground);// , Colours::grey);
         };
     }
 
