@@ -61,6 +61,8 @@ public:
     Font fontItalic;
     Font fontTitle;
 
+    const float fontSize = 15.f;
+
     String getDisplayValue(double val, String suffix = "", int precision = 2)
     {
         String valStr = "";

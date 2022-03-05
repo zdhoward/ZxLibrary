@@ -119,11 +119,11 @@ struct GeneralSettingsComponent : public Component
     {
         Theme theme = lnf.themeManager->getCurrentTheme();
 
-        int themeId = (int)apvts.state.getProperty("Theme", 1);
+        //int themeId = (int)apvts.state.getProperty("Theme", 1);
         
         themeComboBox.setSelectedItemIndex(lnf.themeManager->getCurrentThemeId(), true);
         
-        int oversamplingId = (int)apvts.state.getProperty("Oversampling", 0);
+        int oversamplingId = (int)apvts.state.getProperty("Oversampling", 1);
         oversamplingComboBox.setSelectedId(oversamplingId);
 
         oversamplingLabel.setColour(oversamplingLabel.textColourId, theme.textMain);

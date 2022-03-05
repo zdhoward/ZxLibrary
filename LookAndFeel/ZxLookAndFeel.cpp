@@ -13,7 +13,7 @@
 //==============================================================================
 // THEME CONFIG
 //==============================================================================
-const float fontSize = 15.f;
+//const float fontSize = 15.f;
 
 ZxLookAndFeel::ZxLookAndFeel(AudioProcessorValueTreeState& apvts)
 {

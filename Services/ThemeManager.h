@@ -39,6 +39,8 @@ struct Theme {
 
     Colour comboBoxActive;
     Colour comboBoxHighlighted;
+
+    Colour xyPadBackground;
 };
 
 class ThemeManager
@@ -48,7 +50,7 @@ public:
         apvts(a)
     {
         // Load theme from apvts
-        int id = apvts.state.getProperty("ThemeId", 0);//, 0);
+        int id = apvts.state.getProperty("ThemeId", 0);
         setThemeById(id);
 
         //setThemeByName("Default");
@@ -135,6 +137,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if (themeName == "Oil")
         {
@@ -164,6 +168,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "Curiosities")
         {
@@ -193,6 +199,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "LemonLime")
         {
@@ -222,6 +230,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "Yamazaki")
         {
@@ -251,6 +261,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "IcyWitch")
         {
@@ -280,6 +292,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "DontForget")
         {
@@ -309,6 +323,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "Puffball")
         {
@@ -338,6 +354,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else if(themeName == "Violets")
         {
@@ -367,6 +385,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
         else
         {
@@ -399,6 +419,8 @@ private:
 
             currentTheme.comboBoxActive = currentTheme.groupBackground.darker();
             currentTheme.comboBoxHighlighted = currentTheme.groupBackground.brighter();
+
+            currentTheme.xyPadBackground = currentTheme.compBackground;
         }
 
         apvts.state.setProperty("ThemeId", currentTheme.themeId, nullptr);
