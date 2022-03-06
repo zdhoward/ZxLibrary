@@ -15,22 +15,133 @@
 class PresetManager : ValueTree::Listener
 {
 public:
-    static const File defaultDirectory;
-    static const String extension;
-    static const String presetNameProperty;
+    static const inline File defaultDirectory
+    {
+        File::getSpecialLocation(File::SpecialLocationType::commonDocumentsDirectory).getChildFile(ProjectInfo::companyName).getChildFile(ProjectInfo::projectName)
+    };
 
-    PresetManager(AudioProcessorValueTreeState&);
+    static const inline String extension{ "preset" };
+    static const inline String presetNameProperty{ "presetName" };
 
-    void savePreset(const String& presetName);
-    void deletePreset(const String& presetName);
-    void loadPreset(const String& presetName);
-    int loadNextPreset();
-    int loadPreviousPreset();
-    StringArray getAllPresets() const;
-    String getCurrentPreset() const;
+    PresetManager(AudioProcessorValueTreeState& apvts) : valueTreeState(apvts)
+    {
+        if (!defaultDirectory.exists())
+        {
+            const auto result = defaultDirectory.createDirectory();
+            if (result.failed())
+            {
+                DBG("Could not create preset directory: " << result.getErrorMessage());
+                jassertfalse;
+            }
+        }
+
+        valueTreeState.state.addListener(this);
+        currentPreset.referTo(valueTreeState.state.getPropertyAsValue(presetNameProperty, nullptr));
+    }
+
+    void savePreset(const String& presetName)
+    {
+        if (presetName.isEmpty())
+            return;
+
+        currentPreset.setValue(presetName);
+        const auto xml = valueTreeState.copyState().createXml();
+        const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
+        if (!xml->writeTo(presetFile))
+        {
+            DBG("Could not create preset file: " + presetFile.getFullPathName());
+            jassertfalse;
+        }
+    }
+
+    void deletePreset(const String& presetName)
+    {
+        if (presetName.isEmpty())
+            return;
+
+        const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
+        if (!presetFile.existsAsFile())
+        {
+            DBG("Preset file " + presetFile.getFullPathName() + " does not exist");
+            jassertfalse;
+            return;
+        }
+        if (!presetFile.deleteFile())
+        {
+            DBG("Preset file " + presetFile.getFullPathName() + " could not be deleted");
+            jassertfalse;
+            return;
+        }
+        currentPreset.setValue("");
+    }
+
+    void loadPreset(const String& presetName)
+    {
+        if (presetName.isEmpty())
+            return;
+
+        if (!getAllPresets().contains(presetName))
+            return;
+
+        const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
+        if (!presetFile.existsAsFile())
+        {
+            DBG("Preset file " + presetFile.getFullPathName() + " does not exist");
+            jassertfalse;
+            return;
+        }
+
+        XmlDocument xmlDocument{ presetFile };
+        const auto valueTreeToLoad = ValueTree::fromXml(*xmlDocument.getDocumentElement());
+
+        valueTreeState.replaceState(valueTreeToLoad);
+        currentPreset.setValue(presetName);
+    }
+
+    int loadNextPreset()
+    {
+        const auto allPresets = getAllPresets();
+        if (allPresets.isEmpty())
+            return -1;
+        const auto currentIndex = allPresets.indexOf(currentPreset.toString());
+        const auto nextIndex = currentIndex + 1 > (allPresets.size() - 1) ? 0 : currentIndex + 1;
+        loadPreset(allPresets.getReference(nextIndex));
+        return nextIndex;
+    }
+
+    int loadPreviousPreset()
+    {
+        const auto allPresets = getAllPresets();
+        if (allPresets.isEmpty())
+            return -1;
+        const auto currentIndex = allPresets.indexOf(currentPreset.toString());
+        const auto previousIndex = currentIndex - 1 < 0 ? allPresets.size() - 1 : currentIndex - 1;
+        loadPreset(allPresets.getReference(previousIndex));
+        return previousIndex;
+    }
+
+    StringArray getAllPresets() const
+    {
+        StringArray presets;
+        const auto fileArray = defaultDirectory.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*." + extension);
+
+        for (const auto& file : fileArray)
+        {
+            presets.add(file.getFileNameWithoutExtension());
+        }
+        return presets;
+    }
+
+    String getCurrentPreset() const
+    {
+        return currentPreset.toString();
+    }
 
 private:
-    void valueTreeRedirected(ValueTree& treeWhichHasBeenChanged) override;
+    void valueTreeRedirected(ValueTree& treeWhichHasBeenChanged) override
+    {
+        currentPreset.referTo(treeWhichHasBeenChanged.getPropertyAsValue(presetNameProperty, nullptr));
+    }
 
     AudioProcessorValueTreeState& valueTreeState;
     Value currentPreset;
